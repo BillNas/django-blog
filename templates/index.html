@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <style>
+        img {
+            width: 100%;
+            margin-top: 20px;
+
+        }
+
+        img:hover {
+            transform: scale(1.02);
+            cursor: pointer;
+        }
+
+        .category {
+            font-weight: 400;
+        }
+
+    </style>
+    <section
+            style="background: url({% static 'img/main-blog.jpg' %}); background-size: cover; background-position: center center"
+            class="hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7">
+                    <h1>Blog <i class="fas fa-book"></i>
+                </div></h1>
+            </div>
+    </section>
+    <section class="featured-posts no-padding-top">
+        <div class="container">
+            <!-- Post-->
+            {% for post in posts %}
+                <div class="row d-flex align-items-stretch">
+                    {% if not forloop.first and not forloop.last %}
+                        <div class="image col-lg-5"><a href="{{ post.get_absolute_url }}"><img
+                                src="{{ post.image.url }}" alt="..."></a></div>
+                    {% endif %}
+                    <div class="text col-lg-7">
+                        <div class="text-inner d-flex align-items-center">
+                            <div class="content">
+                                <header class="post-header">
+                                    {% for cat in post.categories.all %}
+                                        <div class="category"><a href="/tag/{{ cat }}">{{ cat }}</a>
+                                    {% endfor %}
+                                    <a href="{{ post.get_absolute_url }}">
+                                        <h3 class="h4">{{ post.title |title }}</h3>
+                                </header>
+                                <p>{{ post.subcontent | linebreaks }}</p>
+                                </a>
+                                <footer class="post-footer d-flex align-items-center"><a href="#"
+                                                                                         class="author d-flex align-items-center flex-wrap">
+                                    <div class="avatar"><img src="{{ post.author.profile.image.url }}" alt="..."
+                                                             class="img-fluid"></div>
+                                    <div class="title"><span></span></div>
+                                </a>
+                                    <b>Συντάκτης:</b> &nbsp;{{ post.author }} |
+                                    <div class="date"><i class="icon-clock"></i>{{ post.date | timesince }} ago</div>
+                                    &nbsp;
+                                    <a href="{{ post.get_absolute_url }}#comments">
+                                        <div class="comments"><i class="icon-comment"></i>{{ post.comments.count }}
+                                        </div>
+                                    </a>
+                                </footer>
+                            </div>
+                        </div>
+                    </div>
+                    {% if forloop.first or forloop.last %}
+                        <div class="image col-lg-5"><a href="{{ post.get_absolute_url }}"><img
+                                src="{{ post.image.url }}" alt="..."></a></div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% include 'sidebar.html' with most_recent=most_recent %}
+    </section>
+{% endblock content %}

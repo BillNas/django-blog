@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% block content %}
+    <style>
+
+        .post-body img {
+
+            width: 100%;
+
+        }
+
+        .liked-btn {
+            color: blue;
+        }
+
+        .disliked-btn {
+            color: red;
+        }
+    </style>
+
+    <div class="container">
+    <div class="row">
+    <!-- Latest Posts -->
+    <main class="post blog-post col-lg-8">
+        <div class="container">
+            <div class="post-single">
+                <div class="post-thumbnail"><img src="{{ post.image.url }}" alt="{{ post.title }}"
+                                                 class="img-fluid">
+                </div>
+                <div class="post-details">
+                    <div class="post-meta d-flex justify-content-between">
+                    </div>
+                    <br>
+                    <h2>{{ post.title |title }}<p class="text-muted"><br>{{ post.subcontent | linebreaks }}</p></h2>
+
+                    <div class="post-footer d-flex align-items-center flex-column flex-sm-row"><a href="#"
+                                                                                                  class="author d-flex align-items-center flex-wrap">
+                        <div class="avatar"><img src="{{ post.author.profile_image.url }}" class="img-fluid"></div>
+                        <div class="title"><span>{{ post.user }}</span></div>
+                    </a>
+                        <div class="d-flex align-items-center flex-wrap">
+                            <div class="date"><i class="icon-clock"></i> {{ post.date | timesince }} ago</div>
+                            <a href="#comments">
+                                <div class="comments meta-last"><i
+                                        class="icon-comment"></i>{{ post.comments.count }}
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        <p class="lead">{{ post.content |linebreaks }}</p>
+                    </div>
+                    {% for cat in post.categories.all %}
+                        <div class="post-tags"><a href="/tag/{{ cat }}" class="tag">#{{ cat }}</a>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="post-comments">
+                <header>
+                    <h3 class="h4">Comments<span class="no-of-comments">({{ post.comments.count }})</span></h3>
+                </header>
+                <a id="comments"></a>
+                {% for comment in comments %}
+                    <div class="comment">
+                        <div class="comment-header d-flex justify-content-between">
+                            <div class="user d-flex align-items-center">
+                                <div class="image">
+                                    <img src="{{ comment.user.profile.image.url }}" alt="..."
+                                         class="img-fluid rounded-circle">
+                                </div>
+                                <div class="title"><strong>{{ comment.user }}{% if comment.user.is_staff %}
+                                    <i class="fas fa-users-cog"></i>
+                                {% endif %}</strong><span class="date">{{ comment.date|timesince }} ago</span></div>
+                            </div>
+                        </div>
+                        <div class="comment-body">
+                            <p style="font-size: 14px;">{{ comment.content |wordwrap:50|linebreaks }}</p>
+                            <br>
+                            {% if user.is_authenticated %}
+                                {% if user in comment.likes.all %}
+                                    <a class="liked-btn"
+                                       href="{% url 'like'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                       name="{{ comment.id }}"><i
+                                            class="fas fa-thumbs-up"></i> {{ comment.likes.count }}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'like'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                       name="{{ comment.id }}"><i
+                                            class="fas fa-thumbs-up"></i>{{ comment.likes.count }}
+                                    </a>
+                                {% endif %}
+                                {% if user in comment.dislikes.all %}
+                                    <a class="disliked-btn"
+                                       href="{% url 'dislike'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                       name="{{ comment.id }}"><i
+                                            class="fas fa-thumbs-down"></i>{{ comment.dislikes.count }}</a>
+                                {% else %}
+                                    <a href="{% url 'dislike'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                       name="{{ comment.id }}"><i
+                                            class="fas fa-thumbs-down"></i>{{ comment.dislikes.count }}</a>
+                                {% endif %}
+                            {% endif %}
+                            <br>
+                            <br>
+                            <button type="button" id="reply-btn" name="reply-btn"
+                                    class="reply-btn btn btn-dark btn-sm">
+                                Replies
+                                ({{ comment.replies.count }})
+                            </button>
+                        </div>
+                        <div class="replied-comments" name="replied-comments" id="replied-comments"
+                             style="display:none;">
+                            {% for reply in comment.replies.all %}
+                                <blockquote class="blockquote">
+                                    <div class="user d-flex align-items-right">
+                                        <div class="image">
+                                            <img src="{{ reply.user.profile.image.url }}" alt="..."
+                                                 class="img-fluid rounded-circle">
+                                        </div>
+                                        <div class="title" style="font-size:0.9em;"><strong>
+                                            {{ reply.user }}{% if reply.user.is_staff %}
+                                                <i class="fas fa-users-cog" alt="admin" title="admin"></i>
+                                            {% else %}
+                                            {% endif %}</strong><span
+                                                class="date">{{ reply.date|timesince }} ago</span>
+                                        </div>
+                                    </div>
+                                    <div class="user d-flex align-items-right">
+                                        <p style="font-size: 14px;">{{ reply.content |linebreaks }}</p>
+                                        <br>
+                                    </div>
+                                    {% if user.is_authenticated %}
+                                        {% if user in reply.likes.all %}
+                                            <button type="button" class="btn btn-outline-dark"><a class="liked-btn"
+                                                                                                  href="{% url 'like'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                                                                                  name="{{ reply.id }}"><i
+                                                    class="fas fa-thumbs-up"></i></a> {{ reply.likes.count }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-outline-dark"><a
+                                                    href="{% url 'like'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                                    name="{{ reply.id }}"><i
+                                                    class="fas fa-thumbs-up"></i></a> {{ reply.likes.count }}
+                                            </button>
+                                        {% endif %}
+
+                                        {% if user in reply.dislikes.all %}
+                                            <button type="button" class="btn btn-outline-dark"><a
+                                                    class="disliked-btn"
+                                                    href="{% url 'dislike'  slug=post.slug post_id=post.post_id  comment_id=reply.id %}  name="{{ comment.id }}"><i
+                                                    class="fas fa-thumbs-down"></i></a> {{ reply.dislikes.count }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-outline-dark"><a
+                                                    href="{% url 'dislike'  slug=post.slug post_id=post.post_id  comment_id=comment.id %}"
+                                                    name="{{ reply.id }}"><i
+                                                    class="fas fa-thumbs-down"></i></a> {{ reply.dislikes.count }}
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
+                                </blockquote>
+                            {% endfor %}
+                            {% if user.is_authenticated %}
+                                <h2 class="h6">Leave a reply to <b>{{ comment.user }}</b></h2>
+                                <form method="POST" action="." id="reply-form" class="commenting-form">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <div class="form-group col-md-12">
+                                            {{ form | crispy }}
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <button type="submit" name="reply-button" class="btn btn-dark">Reply
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                <hr>
+                <header>
+                    {% if user.is_authenticated %}
+                        <h3>Add a comment</h3>
+                        <form method="POST" action="." id="comment-form" class="commenting-form">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    {{ form }}
+                                    <input type='hidden' value='{{ user.username }}' id='user' name='user'>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <button type="submit" class="btn btn-dark">Submit Comment</button>
+                                </div>
+                            </div>
+                        </form>
+                        {% else %}
+                        <h3>You must <a href="{% url 'login' %}">login</a> to add a comment</h3>
+                    {% endif %}
+                    {% include 'sidebar.html' with most_recent=most_recent %}
+                </header>
+            </div>
+        </div>
+    </main>
+{% endblock content %}
