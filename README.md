@@ -1,6 +1,7 @@
 # django-blog
 A django blog with posts, users, likes and comments
 
+Create a directory inside src with the name "static_env" 
 <br>
 <b>Terminal commands</b>
 
