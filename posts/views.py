@@ -179,29 +179,5 @@ def news(request):
     }
     return render(request, 'blog.html', context)
 
-
-# def tag(request, category):
-# posts = Post.objects.filter(categories )
-# print(posts)
-# latest = Post.objects.order_by('-date')[:3]
-# paginator = Paginator(posts, 4)
-# page_request_var = 'page'
-# page = request.GET.get(page_request_var)
-# try:
-#   paginated_queryset = paginator.page(page)
-# except PageNotAnInteger:
-#  paginated_queryset = paginator.page(1)
-# except EmptyPage:
-#    paginated_queryset = paginator.page(paginator.num_pages)
-
-# context = {
-#  "posts": posts,
-#  "latest": latest,
-#  'page_request_var': page_request_var,
-#  'queryset': paginated_queryset,
-# }
-# return render(request, 'tag.html', context)
-
-
 def about(request):
     return render(request, 'about.html')
